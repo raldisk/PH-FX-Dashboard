@@ -1,0 +1,21 @@
+ph_fx:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('PH_FX_PG_HOST', 'localhost') }}"
+      port: "{{ env_var('PH_FX_PG_PORT', '5432') | int }}"
+      user: "{{ env_var('PH_FX_PG_USER', 'fx') }}"
+      password: "{{ env_var('PH_FX_PG_PASSWORD', 'fx') }}"
+      dbname: "{{ env_var('PH_FX_PG_DBNAME', 'ph_fx') }}"
+      schema: public
+      threads: 4
+    prod:
+      type: postgres
+      host: "{{ env_var('PH_FX_PG_HOST') }}"
+      port: "{{ env_var('PH_FX_PG_PORT', '5432') | int }}"
+      user: "{{ env_var('PH_FX_PG_USER') }}"
+      password: "{{ env_var('PH_FX_PG_PASSWORD') }}"
+      dbname: "{{ env_var('PH_FX_PG_DBNAME') }}"
+      schema: public
+      threads: 4

@@ -1,0 +1,21 @@
+name: ph_fx
+version: '1.0.0'
+config-version: 2
+
+profile: ph_fx
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  ph_fx:
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts

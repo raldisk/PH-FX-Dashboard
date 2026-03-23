@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: stg_fx_rates
+    description: "Cleaned and forward-filled USD/PHP daily rates from raw.fx_daily"
+    columns:
+      - name: rate_date
+        description: "Date of the FX rate"
+        tests:
+          - not_null
+          - unique
+      - name: currency_pair
+        description: "Currency pair — always USD/PHP at staging layer"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['USD/PHP']
+      - name: rate
+        description: "PHP per 1 USD"
+        tests:
+          - not_null
+      - name: source
+        description: "Data source identifier"
+        tests:
+          - not_null

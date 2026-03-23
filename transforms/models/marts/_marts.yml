@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: fx_dashboard
+    description: >
+      Daily USD/PHP rate with rolling averages (7/30/90-day), YTD high/low,
+      and period-over-period change percentages.
+      Primary source for Streamlit metric cards and main chart.
+    columns:
+      - name: rate_date
+        description: "Trading date"
+        tests:
+          - not_null
+          - unique
+      - name: rate
+        description: "USD/PHP closing rate"
+        tests:
+          - not_null
+      - name: avg_30d
+        description: "30-day rolling average rate"
+        tests:
+          - not_null
+      - name: ytd_low
+        description: "Year-to-date minimum rate"
+        tests:
+          - not_null
+      - name: ytd_high
+        description: "Year-to-date maximum rate"
+        tests:
+          - not_null
+
+  - name: fx_volatility
+    description: >
+      Rolling volatility metrics: 7-day and 30-day standard deviation,
+      annualized volatility, log returns, and volatility regime classification.
+    columns:
+      - name: rate_date
+        tests:
+          - not_null
+          - unique
+      - name: vol_regime
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['low', 'moderate', 'high']
+
+  - name: real_exchange_rate
+    description: >
+      Monthly nominal USD/PHP adjusted for PH vs US CPI differential.
+      Shows whether the peso is genuinely weakening beyond inflation effects.
+    columns:
+      - name: month
+        tests:
+          - not_null
+          - unique
+      - name: nominal_rate
+        tests:
+          - not_null
