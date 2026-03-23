@@ -1,0 +1,107 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: "0 9 * * 1-5"   # 5PM Manila = 09:00 UTC, weekdays only
+
+env:
+  PH_FX_POSTGRES_DSN: postgresql://fx:fx@localhost:5432/ph_fx
+  PH_FX_PG_HOST:      localhost
+  PH_FX_PG_USER:      fx
+  PH_FX_PG_PASSWORD:  fx
+  PH_FX_PG_DBNAME:    ph_fx
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER:     fx
+          POSTGRES_PASSWORD: fx
+          POSTGRES_DB:       ph_fx
+        options: >-
+          --health-cmd "pg_isready -U fx -d ph_fx"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Install package
+        run: pip install -e . --no-deps
+
+      - name: Lint (ruff)
+        run: ruff check src/ scripts/
+
+      - name: Unit tests
+        run: pytest tests/ -v --tb=short -m "not integration"
+
+      - name: Integration tests
+        run: pytest tests/ -v --tb=short -m "integration"
+
+  dbt:
+    needs: test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER:     fx
+          POSTGRES_PASSWORD: fx
+          POSTGRES_DB:       ph_fx
+        options: >-
+          --health-cmd "pg_isready -U fx -d ph_fx"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dbt
+        run: pip install dbt-postgres
+
+      - name: dbt deps
+        run: dbt deps --profiles-dir transforms
+        working-directory: transforms
+
+      - name: dbt run
+        run: dbt run --profiles-dir transforms
+        working-directory: transforms
+
+      - name: dbt test
+        run: dbt test --profiles-dir transforms
+        working-directory: transforms
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker compose build --no-cache
