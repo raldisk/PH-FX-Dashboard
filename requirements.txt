@@ -1,0 +1,12 @@
+requests>=2.31
+beautifulsoup4>=4.12
+pydantic>=2.5
+pydantic-settings>=2.1
+psycopg2-binary>=2.9
+typer[all]>=0.9
+rich>=13.0
+dbt-postgres>=1.7
+streamlit>=1.35
+plotly>=5.18
+pandas>=2.1
+openpyxl>=3.1

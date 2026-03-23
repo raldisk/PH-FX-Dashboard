@@ -1,0 +1,55 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER:     fx
+      POSTGRES_PASSWORD: fx
+      POSTGRES_DB:       ph_fx
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fx -d ph_fx"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    env_file: .env
+    environment:
+      PH_FX_PG_HOST: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ingest
+
+  streamlit:
+    build: .
+    env_file: .env
+    environment:
+      PH_FX_PG_HOST: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${STREAMLIT_PORT:-8501}:8501"
+    command: >
+      bash -c "streamlit run dashboard/app.py
+        --server.port=8501
+        --server.address=0.0.0.0
+        --server.headless=true"
+
+  adminer:
+    image: adminer:4
+    ports:
+      - "${ADMINER_PORT:-8080}:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  pg_data:

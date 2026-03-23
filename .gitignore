@@ -1,0 +1,32 @@
+# Environment
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# dbt
+transforms/target/
+transforms/dbt_packages/
+transforms/logs/
+
+# Output files — commit screenshots not binaries
+output/*.pbix
+output/*.twbx
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp

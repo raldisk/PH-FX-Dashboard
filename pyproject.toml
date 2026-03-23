@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "ph-fx-dashboard"
+version = "0.1.0"
+description = "Live BSP peso-dollar tracker with volatility alerts for Filipino SME exporters"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31",
+    "beautifulsoup4>=4.12",
+    "pydantic>=2.5",
+    "pydantic-settings>=2.1",
+    "psycopg2-binary>=2.9",
+    "typer[all]>=0.9",
+    "rich>=13.0",
+    "dbt-postgres>=1.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.1",
+    "respx>=0.20",
+]
+dashboard = [
+    "streamlit>=1.35",
+    "plotly>=5.18",
+    "pandas>=2.1",
+]
+export = [
+    "openpyxl>=3.1",
+    "pandas>=2.1",
+]
+
+[project.scripts]
+ph-fx = "ph_fx.pipeline:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: marks tests requiring a live PostgreSQL connection",
+]
